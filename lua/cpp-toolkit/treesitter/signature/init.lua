@@ -35,7 +35,7 @@ function function_declaration_base.to_lines(self)
   end
   table.insert(lines, '  // TODO(hawtian): impl')
   table.insert(lines, '}')
-  return table.concat(lines, '\n')
+  return lines
 end
 
 function M.function_declaration_at_cursor()
