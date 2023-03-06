@@ -22,7 +22,7 @@ end
 
 function definition_preview:confirm()
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.api.nvim_buf_set_lines(0, row - 1, row - 1, true, self.lines)
+  vim.api.nvim_buf_set_lines(0, row, row, true, self.lines)
 end
 
 function definition_preview:setup_keymap()
