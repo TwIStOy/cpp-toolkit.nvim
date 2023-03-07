@@ -33,7 +33,7 @@ function function_declaration_base.to_lines(self)
   else
     table.insert(lines, string.format('%s%s {', prefix, self.body))
   end
-  table.insert(lines, '  // TODO(hawtian): impl')
+  table.insert(lines, '  // TODO: impl')
   table.insert(lines, '}')
   return lines
 end
