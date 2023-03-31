@@ -45,7 +45,7 @@ function function_declaration_base.to_lines(self)
     end
   end
 
-  return lines
+  return result
 end
 
 function M.function_declaration_at_cursor()
