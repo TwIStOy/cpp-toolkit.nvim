@@ -22,7 +22,7 @@ end
 function M.get_class_info(class_node)
   assert(CLASS_NODE_TYPES[class_node:type()] ~= nil)
 
-  local class_sig = { name = '', template = {} }
+  local class_sig = { name = '', template = nil }
 
   local name_node = class_node:field('name')[1]
   class_sig.name = UtilTs.get_node_text(name_node)
