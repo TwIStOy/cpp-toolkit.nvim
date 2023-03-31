@@ -40,8 +40,7 @@ function function_declaration_base.to_lines(self)
   local result = {}
   for _, line in ipairs(lines) do
     -- split line with newline
-    local splitted = vim.split(line, '\n')
-    for _, l in ipairs(splitted) do
+    for l in line:gmatch("[^\r\n]+") do
       table.insert(result, l)
     end
   end
