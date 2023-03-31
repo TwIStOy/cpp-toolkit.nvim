@@ -43,11 +43,14 @@ end
 
 function M.get_recursive_class(node)
   if node == nil then
-    return {}
+    return nil
   end
 
   local p = M.get_recursive_class(node:parent())
   if CLASS_NODE_TYPES[node:type()] then
+    if p == nil then
+      p = {}
+    end
     table.insert(p, M.get_class_info(node))
   end
 

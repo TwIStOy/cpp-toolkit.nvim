@@ -29,7 +29,7 @@ end
 ---@param node TSNode
 ---@return string
 function M.get_node_text(node)
-  return vim.treesitter.query.get_node_text(node, 0)
+  return vim.treesitter.get_node_text(node, 0)
 end
 
 ---Recursive find the first parent node whose type matches `types`.

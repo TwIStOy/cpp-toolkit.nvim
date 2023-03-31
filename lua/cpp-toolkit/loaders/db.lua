@@ -5,8 +5,6 @@ local UA = require 'cpp-toolkit.util.array'
 local shlex = require 'cpp-toolkit.util.shlex'
 local Path = require 'plenary.path'
 
-local DB = {}
-
 ---comment
 ---@param file_opt table
 ---@return boolean
@@ -86,7 +84,7 @@ function M.parse_db(filename)
     return nil
   end
 
-  local data = {}
+  data = {}
   for _, file_opts in ipairs(doc) do
     if not valid_file_options(file_opts) then
       goto continue

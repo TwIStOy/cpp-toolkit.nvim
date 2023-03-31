@@ -3,6 +3,7 @@ local M = {}
 local Sig = require 'cpp-toolkit.treesitter.signature'
 local cpp_toolkit = require 'cpp-toolkit.util.globals'
 local A = vim.api
+local C = require 'cpp-toolkit.config'
 
 local cpptoolkit_copyed_function_declaration = {}
 local definition_preview = {
@@ -72,7 +73,7 @@ function definition_preview:update_preview()
     virt_lines = {},
   }
   for i = 1, #self.lines do
-    extmark.virt_lines[i] = { { self.lines[i], 'Comment' } }
+    extmark.virt_lines[i] = { { self.lines[i], C.opts.impl_preview_highlight } }
   end
 
   local cursor_col = vim.fn.col(".")

@@ -29,7 +29,8 @@ function M.parse_include_hint(filename)
   for _, p in ipairs(data) do
     res[vim.fn.resolve(tostring(p))] = true
   end
-  local data = {}
+
+  data = {}
   for k, _ in pairs(res) do
     table.insert(data, k)
   end
