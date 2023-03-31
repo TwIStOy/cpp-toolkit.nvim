@@ -7,6 +7,7 @@ local FUNC = require 'cpp-toolkit.treesitter.signature.function'
 local CLS = require 'cpp-toolkit.treesitter.signature.class'
 
 local function_declaration_base = {}
+
 function function_declaration_base.to_lines(self)
   local lines = {}
   if self.classes ~= nil then
@@ -35,6 +36,16 @@ function function_declaration_base.to_lines(self)
   end
   table.insert(lines, '  // TODO: impl')
   table.insert(lines, '}')
+
+  local result = {}
+  for _, line in ipairs(lines) do
+    -- split line with newline
+    local splitted = vim.split(line, '\n')
+    for _, l in ipairs(splitted) do
+      table.insert(result, l)
+    end
+  end
+
   return lines
 end
 
