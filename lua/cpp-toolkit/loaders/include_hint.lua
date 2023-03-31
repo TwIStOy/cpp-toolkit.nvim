@@ -12,7 +12,8 @@ function M.parse_include_hint(filename)
     return nil
   end
 
-  local root = Path.new(file:parent():asbolute())
+  local root = file:parent()
+  root = Path.new(root:absolute())
   local lines = Path.readlines(file)
   local data = {}
   for _, line in ipairs(lines) do
@@ -22,6 +23,15 @@ function M.parse_include_hint(filename)
     else
       table.insert(data, root / p)
     end
+  end
+
+  local res = {}
+  for _, p in ipairs(data) do
+    res[vim.fn.resolve(tostring(p))] = true
+  end
+  local data = {}
+  for k, _ in pairs(res) do
+    table.insert(data, k)
   end
 
   return { data = data, get_includes = get_includes }

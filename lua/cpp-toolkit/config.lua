@@ -15,10 +15,9 @@ M.opts.switch_header_source = {
   },
 }
 
-M.opts.project_markers = {
-  'Makefile',
-  'compile_commands.json',
-  'CMakeLists.txt',
-}
+M.opts.header_exts = { 'h', 'hh', 'hpp', 'hxx' }
+
+M.opts.project_markers = { 'Makefile', 'compile_commands.json',
+                           'CMakeLists.txt' }
 
 return M

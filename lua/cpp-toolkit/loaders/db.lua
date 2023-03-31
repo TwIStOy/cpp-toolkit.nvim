@@ -116,7 +116,18 @@ function M.parse_db(filename)
         return p:expand()
       end
     end)
-    data[tostring(source_file)] = includes
+
+    -- unique
+    local ures = {}
+    for _, p in ipairs(includes) do
+      ures[vim.fn.resolve(tostring(p))] = true
+    end
+    local res = {}
+    for k, _ in pairs(ures) do
+      table.insert(res, k)
+    end
+
+    data[tostring(source_file)] = res
 
     ::continue::
   end
