@@ -65,7 +65,6 @@ Default values:
 # Features
 
 ## Generate function impl
-
-![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/gen_cpp_impl.gif)
+![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_gen_cpp_impl.gif)
 
 
