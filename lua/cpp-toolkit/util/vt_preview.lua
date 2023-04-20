@@ -3,20 +3,14 @@ local C = require 'cpp-toolkit.config'
 local cpp_toolkit = require 'cpp-toolkit.util.globals'
 
 local default_ns_id = A.nvim_create_namespace('cpptoolkit.vt_preview')
+local default_extmark_id = 1
 
-local vt_preview = {
-  --[[
-  lines = {},
-  cursor_moved_id = nil,
-  previous_buffer = nil,
-  extmark_id = 1,
-  keymap_set = false,
-  --]]
-}
+local vt_preview = {}
 
 function vt_preview:clear_preview()
   if self.previous_buffer ~= nil then
-    A.nvim_buf_del_extmark(self.previous_buffer, self.ns_id, self.extmark_id)
+    A.nvim_buf_del_extmark(self.previous_buffer, default_ns_id,
+                           default_extmark_id)
   end
 end
 
@@ -41,16 +35,30 @@ function vt_preview:setup_keymap()
 end
 
 function vt_preview:setup_autocmd()
-  if self.cursor_moved_id == nil then
-    self.cursor_moved_id = A.nvim_create_autocmd({ 'CursorMoved',
-                                                   'CursorMovedI' }, {
-      group = cpp_toolkit.augroup,
-      pattern = '*',
-      callback = function()
-        self:update_preview()
-      end,
-    })
+  if self.autocmd_ids ~= nil then
+    return
   end
+
+  local update_preview_on_move = A.nvim_create_autocmd({
+    'CursorMoved',
+    'CursorMovedI',
+  }, {
+    group = cpp_toolkit.augroup,
+    pattern = '*',
+    callback = function()
+      self:update_preview()
+    end,
+  })
+
+  local cancel_on_insert = A.nvim_create_autocmd({ 'InsertEnter' }, {
+    group = cpp_toolkit.augroup,
+    pattern = '*',
+    callback = function()
+      self:stop()
+    end,
+  })
+
+  self.autocmd_ids = { update_preview_on_move, cancel_on_insert }
 end
 
 function vt_preview:update_preview()
@@ -60,7 +68,7 @@ function vt_preview:update_preview()
   end
 
   local extmark = {
-    id = self.extmark_id,
+    id = default_extmark_id,
     virt_text_win_col = vim.fn.virtcol(".") - 1,
     virt_lines = {},
   }
@@ -70,16 +78,18 @@ function vt_preview:update_preview()
 
   local cursor_col = vim.fn.col(".")
   self.previous_buffer = A.nvim_win_get_buf(0)
-  A.nvim_buf_set_extmark(self.previous_buffer, self.ns_id, vim.fn.line(".") - 1,
-                         cursor_col - 1, extmark)
+  A.nvim_buf_set_extmark(self.previous_buffer, default_ns_id,
+                         vim.fn.line(".") - 1, cursor_col - 1, extmark)
 end
 
 function vt_preview:stop()
   self:clear_preview()
 
-  if self.cursor_moved_id ~= nil then
-    A.nvim_del_autocmd(self.cursor_moved_id)
-    self.cursor_moved_id = nil
+  if self.autocmd_ids ~= nil then
+    for _, id in ipairs(self.autocmd_ids) do
+      A.nvim_del_autocmd(id)
+    end
+    self.autocmd_ids = nil
   end
 
   if self.keymap_set then
@@ -95,20 +105,11 @@ function vt_preview:mount()
   self:setup_keymap()
 end
 
-local function new_vt_preview(lines)
-  local res = { lines = lines }
+local function new_vt_preview(lines, hooks)
+  hooks = hooks or {}
+  local res = { lines = lines, hooks = hooks }
   setmetatable(res, { __index = vt_preview })
   return res
 end
 
 return { new_vt_preview = new_vt_preview }
-
--- vim.api.nvim_create_namespace('cpptoolkit.vt_preview')
---[[
-function vt_preview:update_lines(lines)
-  self.lines = lines
-  self:update_preview()
-  self:setup_autocmd()
-  self:setup_keymap()
-end
---]]

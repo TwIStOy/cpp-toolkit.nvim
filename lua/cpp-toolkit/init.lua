@@ -8,7 +8,10 @@ function M.setup(_opts)
 
   if opts.cmd then
     vim.api.nvim_create_user_command('CppGenDef', function()
-      require'cpp-toolkit.treesitter'.copy_function_declaration_at_cursor()
+      require'cpp-toolkit.functions.gen_def'.gen_function_declaration_at_cursor()
+    end, { bang = true })
+    vim.api.nvim_create_user_command('CppDebugPrint', function()
+      require'cpp-toolkit.functions.debugprint'.debugprint_at_cursor()
     end, { bang = true })
   end
 end
