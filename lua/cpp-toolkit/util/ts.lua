@@ -32,6 +32,29 @@ function M.get_node_text(node)
   return vim.treesitter.get_node_text(node, 0)
 end
 
+---Recursive find the topmost parent node whose type matches `types`.
+---@param node TSNode
+---@param types table<string, number> | string
+---@return TSNode | nil
+function M.find_topmost_parent(node, types)
+  local ntypes = make_type_matcher(types)
+
+  ---@param root TSNode
+  ---@return TSNode | nil
+  local function find_parent_impl(root)
+    if root == nil then
+      return nil
+    end
+    local res = nil
+    if ntypes[root:type()] then
+      res = root
+    end
+    return find_parent_impl(root:parent()) or res
+  end
+
+  return find_parent_impl(node)
+end
+
 ---Recursive find the first parent node whose type matches `types`.
 ---@param node TSNode
 ---@param types table<string, number> | string
@@ -40,7 +63,7 @@ function M.find_first_parent(node, types)
   local ntypes = make_type_matcher(types)
 
   ---@param root TSNode
-  ---@return TSNode
+  ---@return TSNode | nil
   local function find_parent_impl(root)
     if root == nil then
       return nil
@@ -168,6 +191,16 @@ function M.inspect_node(root)
   res = res .. ' [' .. end_row .. ', ' .. end_col .. ']'
 
   return res
+end
+
+---Get the range of a node in LSP format.
+---@param node TSNode
+function M.get_lsp_range(node)
+  local start_row, start_col, end_row, end_col = node:range()
+  return {
+    start = { line = start_row, character = start_col },
+    ['end'] = { line = end_row, character = end_col },
+  }
 end
 
 return M

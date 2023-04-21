@@ -14,21 +14,30 @@ end
 
 ---@param node TSNode
 ---@param fmt string | function
-local function textedit_from_node(node, fmt)
+local function textedit_from_node(node, fmt, ctx)
   local text = util_ts.get_node_text(node)
   local new_text
   if type(fmt) == 'string' then
     new_text = string.format(fmt, text)
   else
-    new_text = fmt(text)
+    new_text = fmt(text, ctx)
   end
 
-  local start_row, start_col, end_row, end_col = node:range()
-  local range = {
-    start = { line = start_row, character = start_col },
-    ['end'] = { line = end_row, character = end_col },
-  }
-  return { range = range, newText = new_text }
+  return { range = util_ts.get_lsp_range(node), newText = new_text }
+end
+
+---Get the elements of a comma expression.
+---@param node TSNode
+local function comma_expression_elements(node)
+  local left = node:field("left")[1]
+  local right = node:field("right")[1]
+  local res = { util_ts.get_node_text(left) }
+  if right:type() == 'comma_expression' then
+    return vim.list_extend(res, comma_expression_elements(right))
+  else
+    table.insert(res, util_ts.get_node_text(left))
+    return res
+  end
 end
 
 function M.shortcut_move_value()
@@ -50,6 +59,30 @@ function M.shortcut_forward_value()
       return string.format("std::forward<%s>(%s)", txt, txt)
     end),
   }, 0, 'utf-16')
+end
+
+function M.shortcut_stdcout_values()
+  local node = ts_utils.get_node_at_cursor()
+  node = util_ts.find_topmost_parent(node, 'comma_expression')
+  if node == nil then
+    return
+  end
+
+  vim.print(node)
+
+  local elements = comma_expression_elements(node)
+  local fmt_elements = {}
+  for _, e in ipairs(elements) do
+    table.insert(fmt_elements, string.format('"%s = " << %s', e, e))
+  end
+
+  local text_edit = {
+    range = util_ts.get_lsp_range(node),
+    newText = string.format("std::cout << %s << std::endl",
+                            table.concat(fmt_elements, " << ")),
+  }
+
+  vim.lsp.util.apply_text_edits({ text_edit }, 0, 'utf-16')
 end
 
 return M
