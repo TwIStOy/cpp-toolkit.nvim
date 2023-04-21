@@ -25,7 +25,7 @@ local function make_type_matcher(types)
   return types
 end
 
----comment
+---Get the text of a node.
 ---@param node TSNode
 ---@return string
 function M.get_node_text(node)
