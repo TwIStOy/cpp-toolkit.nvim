@@ -85,4 +85,10 @@ function M.shortcut_stdcout_values()
   vim.lsp.util.apply_text_edits({ text_edit }, 0, 'utf-16')
 end
 
+M.shortcuts = {
+  move_value = M.shortcut_move_value,
+  forward_value = M.shortcut_forward_value,
+  stdcout_values = M.shortcut_stdcout_values
+}
+
 return M
