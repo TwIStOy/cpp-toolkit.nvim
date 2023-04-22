@@ -20,7 +20,13 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
-    'TwIStOy/cpp-toolkit.nvim'
+    'TwIStOy/cpp-toolkit.nvim',
+    cmd = {
+        'CppGenDef', 'CppDebugPrint', 'CppToolkit'
+    },
+    dependencies = {
+        'nvim-lua/plenary.nvim', 'nvim-telescope/telescope.nvim'
+    }
 }
 ```
 
@@ -48,7 +54,7 @@ Default values:
     config = function(_, opts)
         require'cpp-toolkit'.setup(opts)
     end,
-    cmd = { 'CppGenDef', 'Telescope' },
+    cmd = { 'CppGenDef', 'CppDebugPrint', 'CppToolkit', 'Telescope' },
     keys = {
         {
             '<C-e><C-i>',
@@ -67,4 +73,17 @@ Default values:
 ## Generate function impl
 ![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_gen_cpp_impl.gif)
 
+## Generate debug-print stmt
+![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_debug_print.gif)
+
+## Generate some shortcuts for values
+
+### `std::move`
+![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_shortcut_move_value.gif)
+
+### `std::forward`
+![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_shortcut_forward_value.gif)
+
+### `std::cout`
+![](https://raw.githubusercontent.com/TwIStOy/cpp-toolkit.nvim/master/screenshots/screen_shortcut_stdcout_values.gif)
 
