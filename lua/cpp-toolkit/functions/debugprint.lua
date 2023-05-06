@@ -19,7 +19,11 @@ local function get_debugprint_template(verbose)
       return nil
     end
     local root = Path:new(root)
+    ---@type Path
     local template_file = root / '.debugprint.json'
+    if template_file:exists() == false then
+      return nil
+    end
     local data = Path.read(template_file)
     if data == nil or #data == 0 then
       return nil
