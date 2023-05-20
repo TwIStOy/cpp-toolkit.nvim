@@ -1,15 +1,17 @@
-local util_ts = require 'cpp-toolkit.util.ts'
-local ts_utils = require 'nvim-treesitter.ts_utils'
+local util_ts = require("cpp-toolkit.util.ts")
+local ts_utils = require("nvim-treesitter.ts_utils")
 
 local M = {}
 
-local object_expr_types = { 'call_expression', 'identifier' }
+local object_expr_types = { "call_expression", "identifier" }
 
 ---@return TSNode|nil
 local function object_expr_at_cursor()
   local node = ts_utils.get_node_at_cursor()
-  local parent = util_ts.find_first_parent(node, object_expr_types)
-  return parent
+  if node ~= nil then
+    local parent = util_ts.find_first_parent(node, object_expr_types)
+    return parent
+  end
 end
 
 ---@param node TSNode
@@ -17,7 +19,7 @@ end
 local function textedit_from_node(node, fmt, ctx)
   local text = util_ts.get_node_text(node)
   local new_text
-  if type(fmt) == 'string' then
+  if type(fmt) == "string" then
     new_text = string.format(fmt, text)
   else
     new_text = fmt(text, ctx)
@@ -32,7 +34,7 @@ local function comma_expression_elements(node)
   local left = node:field("left")[1]
   local right = node:field("right")[1]
   local res = { util_ts.get_node_text(left) }
-  if right:type() == 'comma_expression' then
+  if right:type() == "comma_expression" then
     return vim.list_extend(res, comma_expression_elements(right))
   else
     table.insert(res, util_ts.get_node_text(right))
@@ -45,8 +47,11 @@ function M.shortcut_move_value()
   if node == nil then
     return
   end
-  vim.lsp.util.apply_text_edits({ textedit_from_node(node, 'std::move(%s)') },
-                                0, 'utf-16')
+  vim.lsp.util.apply_text_edits(
+    { textedit_from_node(node, "std::move(%s)") },
+    0,
+    "utf-16"
+  )
 end
 
 function M.shortcut_forward_value()
@@ -56,14 +61,14 @@ function M.shortcut_forward_value()
   end
   vim.lsp.util.apply_text_edits({
     textedit_from_node(node, function(txt)
-      return string.format("std::forward<%s>(%s)", txt, txt)
+      return string.format("std::forward<decltype(%s)>(%s)", txt, txt)
     end),
-  }, 0, 'utf-16')
+  }, 0, "utf-16")
 end
 
 function M.shortcut_stdcout_values()
   local node = ts_utils.get_node_at_cursor()
-  node = util_ts.find_topmost_parent(node, 'comma_expression')
+  node = util_ts.find_topmost_parent(node, "comma_expression")
   if node == nil then
     --- generate stdcout for object_expr
     local node = object_expr_at_cursor()
@@ -72,10 +77,13 @@ function M.shortcut_stdcout_values()
     end
     vim.lsp.util.apply_text_edits({
       textedit_from_node(node, function(txt)
-        return string.format([[std::cout << "%s = " << %s << std::endl]], txt,
-                             txt)
+        return string.format(
+          [[std::cout << "%s = " << %s << std::endl]],
+          txt,
+          txt
+        )
       end),
-    }, 0, 'utf-16')
+    }, 0, "utf-16")
     return
   else
     --- generate stdcout for a list of values
@@ -91,11 +99,13 @@ function M.shortcut_stdcout_values()
 
     local text_edit = {
       range = util_ts.get_lsp_range(node),
-      newText = string.format("std::cout << %s << std::endl",
-                              table.concat(fmt_elements, " << ")),
+      newText = string.format(
+        "std::cout << %s << std::endl",
+        table.concat(fmt_elements, " << ")
+      ),
     }
 
-    vim.lsp.util.apply_text_edits({ text_edit }, 0, 'utf-16')
+    vim.lsp.util.apply_text_edits({ text_edit }, 0, "utf-16")
   end
 end
 
