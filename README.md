@@ -50,6 +50,17 @@ Default values:
 
         -- highlight group for preview
         impl_preview_highlight = 'Comment',
+
+        -- "trailing" or "beginning"
+        -- signature:
+        --   void foo(int bar);
+        -- impl, style = "begin":
+        --   void foo(int bar) {
+        --   }
+        -- impl, style = "trailing"
+        --   auto foo(int bar) -> void {
+        --   }
+        impl_return_type_style = "beginning",
     }
     config = function(_, opts)
         require'cpp-toolkit'.setup(opts)
