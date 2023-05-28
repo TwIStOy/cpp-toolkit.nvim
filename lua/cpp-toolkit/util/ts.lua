@@ -1,18 +1,18 @@
 local M = {}
 
-local parsers = require 'nvim-treesitter.parsers'
-local TSRange = require'nvim-treesitter.tsrange'.TSRange
-local ts_utils = require 'nvim-treesitter.ts_utils'
+local parsers = require("nvim-treesitter.parsers")
+local TSRange = require("nvim-treesitter.tsrange").TSRange
+local ts_utils = require("nvim-treesitter.ts_utils")
 local A = vim.api
 
 ---@param types table | string
 ---@return table<string, number>
 local function make_type_matcher(types)
-  if type(types) == 'string' then
+  if type(types) == "string" then
     return { [types] = 1 }
   end
 
-  if type(types) == 'table' then
+  if type(types) == "table" then
     if vim.tbl_islist(types) then
       local new_types = {}
       for _, v in ipairs(types) do
@@ -30,6 +30,15 @@ end
 ---@return string
 function M.get_node_text(node)
   return vim.treesitter.get_node_text(node, 0)
+end
+
+---Get field of a node.
+---@param node TSNode
+---@param field string
+---@return TSNode[]
+function M.get_node_field(node, field)
+  ---@diagnostic disable-next-line: undefined-field
+  return node:field(field)
 end
 
 ---Recursive find the topmost parent node whose type matches `types`.
@@ -120,14 +129,19 @@ local function cmp_position(row0, col0, row1, col1)
   end
 end
 
-local function get_nodes_in_range_impl(root, start_row, start_col, end_row,
-                                       end_col)
+local function get_nodes_in_range_impl(
+  root,
+  start_row,
+  start_col,
+  end_row,
+  end_col
+)
   if root == nil then
     return {}
   end
 
   local root_start_row, root_start_col, root_end_row, root_end_col =
-      root:range()
+    root:range()
 
   if cmp_position(end_row, end_col, root_start_row, root_start_col) < 0 then
     return {}
@@ -137,8 +151,10 @@ local function get_nodes_in_range_impl(root, start_row, start_col, end_row,
     return {}
   end
 
-  if cmp_position(start_row, start_col, root_start_row, root_start_col) <= 0 and
-      cmp_position(root_end_row, root_end_col, end_row, end_col) <= 0 then
+  if
+    cmp_position(start_row, start_col, root_start_row, root_start_col) <= 0
+    and cmp_position(root_end_row, root_end_col, end_row, end_col) <= 0
+  then
     return { root }
   end
 
@@ -146,8 +162,10 @@ local function get_nodes_in_range_impl(root, start_row, start_col, end_row,
 
   for i = 0, root:child_count() - 1, 1 do
     local child = root:child(i)
-    table.insert(nodes, get_nodes_in_range_impl(child, start_row, start_col,
-                                                end_row, end_col))
+    table.insert(
+      nodes,
+      get_nodes_in_range_impl(child, start_row, start_col, end_row, end_col)
+    )
   end
 
   return vim.tbl_flatten(nodes)
@@ -161,8 +179,8 @@ function M.get_nodes_in_range(winnr, start_row, start_col, end_row, end_col)
     return nil
   end
 
-  local root = ts_utils.get_root_for_position(start_row, start_col,
-                                              root_lang_tree)
+  local root =
+    ts_utils.get_root_for_position(start_row, start_col, root_lang_tree)
   if root == nil then
     return nil
   end
@@ -176,19 +194,19 @@ function M.inspect_node_under_cursor()
   return M.inspect_node(root)
 end
 
----@param root TSNode
+---@param root TSNode|nil
 ---@return string
 function M.inspect_node(root)
   if root == nil then
-    return 'nil'
+    return "nil"
   end
 
   local start_row, start_col, end_row, end_col =
-      vim.treesitter.get_node_range(root)
+    vim.treesitter.get_node_range(root)
 
-  local res = '' .. root:type()
-  res = res .. ' [' .. start_row .. ', ' .. start_col .. ']'
-  res = res .. ' [' .. end_row .. ', ' .. end_col .. ']'
+  local res = "" .. root:type()
+  res = res .. " [" .. start_row .. ", " .. start_col .. "]"
+  res = res .. " [" .. end_row .. ", " .. end_col .. "]"
 
   return res
 end
@@ -199,7 +217,7 @@ function M.get_lsp_range(node)
   local start_row, start_col, end_row, end_col = node:range()
   return {
     start = { line = start_row, character = start_col },
-    ['end'] = { line = end_row, character = end_col },
+    ["end"] = { line = end_row, character = end_col },
   }
 end
 
