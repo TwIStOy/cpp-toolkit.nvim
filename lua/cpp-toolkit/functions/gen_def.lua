@@ -9,7 +9,7 @@ function M.gen_function_declaration_at_cursor()
   if cpptoolkit_copyed_function_declaration ~= nil then
     local lines = cpptoolkit_copyed_function_declaration:to_lines()
     if lines ~= nil then
-      local preview = vt_preview.new_vt_preview()
+      local preview = vt_preview.new_vt_preview(lines)
       preview:mount()
     end
   end
